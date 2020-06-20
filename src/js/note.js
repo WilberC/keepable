@@ -18,7 +18,13 @@ const deleteNote = (e) => {
   console.log("Im out!");
 };
 
+const addFormNoteColorListener = () => {
+  addListener([document.querySelector("#note__form__button_color")], "mouseenter", triggerColorPalette);
+  addListener([document.querySelector("#note__form__button_color")], "mouseleave", hideColorPalette);
+};
+
 const mainListeners = () => {
+  addFormNoteColorListener();
   colorPaletteColorsListener();
   colorTriggerListener();
   hideColorPaletteListener();
@@ -33,10 +39,12 @@ const addNoteListener = () => addListener([document.querySelector("#keepit")], "
 const addNoteHandler = (e) => {
   const noteForm = e.target.parentElement.parentElement.previousElementSibling;
   const note = noteForm.textContent.trim();
+  const color = noteForm.parentElement.classList.item(0);
   noteForm.textContent = "";
   if (note.length == 0) return;
-  saveNote(Note(note, "color-1"));
+  saveNote(Note(note, color));
   renderNotes();
+  resetCreateNoteColor();
 };
 
 const renderNotes = () => {
@@ -95,11 +103,14 @@ const colorHandler = (e) => {
 };
 
 const changeNoteColor = (id, color) => {
-  //id = id.match(/\d+$/)[0];
-  const notes = getNotes();
-  notes[id] = Object.assign(notes[id], { color });
-  saveNotes(notes);
-  changeRenderedNoteColor(`#note-${id}`, color);
+  if (/\d+$/.test(id)) {
+    const notes = getNotes();
+    notes[id] = Object.assign(notes[id], { color });
+    saveNotes(notes);
+    return changeRenderedNoteColor(`#note-${id}`, color);
+  }
+
+  changeCreateNoteColor(color);
 };
 const addListener = (elements, event, handler) =>
   elements.forEach((element) => element.addEventListener(event, handler));
@@ -114,9 +125,13 @@ const saveNote = (note) => {
   return saveNotes(localNotes);
 };
 
-const Note = (content, color, id) => {
+const Note = (content, color) => {
   return { content, color };
 };
+
+const changeCreateNoteColor = (color) => document.querySelector("#notes__form").setAttribute("class", color);
+
+const resetCreateNoteColor = () => document.querySelector("#notes__form").setAttribute("class", "color-1");
 
 const changeRenderedNoteColor = (element, color) =>
   document.querySelector(element).setAttribute("class", `note ${color}`);
