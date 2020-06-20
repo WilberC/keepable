@@ -3,11 +3,26 @@ window.addEventListener("load", () => {
   mainListeners();
   addNoteListener();
 });
+const removeNoteListener = () =>
+  addListener(document.querySelectorAll(".note__footer__button_delete"), "click", deleteNote);
 
-const mainListeners = () =>   {
+const deleteNote = (e) => {
+  state.selectedNote = e.target.parentElement.dataset.id;
+  let notes = getNotes();
+  console.log(state.selectedNote);
+  notes = notes.filter((_note, index) => index != state.selectedNote);
+  console.log(notes);
+  saveNotes(notes);
+  renderNotes();
+  mainListeners();
+  console.log("Im out!");
+};
+
+const mainListeners = () => {
   colorPaletteColorsListener();
   colorTriggerListener();
   hideColorPaletteListener();
+  removeNoteListener();
 };
 const state = {
   selectedNote: null,
@@ -18,20 +33,19 @@ const addNoteListener = () => addListener([document.querySelector("#keepit")], "
 const addNoteHandler = (e) => {
   const noteForm = e.target.parentElement.parentElement.previousElementSibling;
   const note = noteForm.textContent.trim();
-  noteForm.textContent = '';
+  noteForm.textContent = "";
   if (note.length == 0) return;
   saveNote(Note(note, "color-1"));
   renderNotes();
 };
 
-
 const renderNotes = () => {
   const notes = getNotes();
   const container = document.querySelector("#notes");
   if (!notes) return;
-  
+
   container.innerHTML = "";
-  blankMessage(notes)
+  blankMessage(notes);
   notes.forEach((note, idx) => {
     container.append(noteTemplate(Object.assign(note, { id: idx })));
   });
@@ -39,8 +53,8 @@ const renderNotes = () => {
 };
 
 const blankMessage = () => {
-  return document.querySelector(".noNotesText").style.display = notes ? 'none' : 'flex';
-}
+  return (document.querySelector(".noNotesText").style.display = notes ? "none" : "flex");
+};
 
 const getNotes = () => JSON.parse(localStorage.getItem("notes"));
 
@@ -54,13 +68,12 @@ const hideColorPaletteListener = () => {
 };
 
 const hideColorPalette = () => {
-  
-  document.querySelector("#color_selector").style.visibility = "hidden"
-  document.querySelector("#color_selector").style.display = "none"
+  document.querySelector("#color_selector").style.visibility = "hidden";
+  document.querySelector("#color_selector").style.display = "none";
 };
 const showColorPalette = () => {
-  document.querySelector("#color_selector").style.visibility = "visible"
-  document.querySelector("#color_selector").style.display = "flex"
+  document.querySelector("#color_selector").style.visibility = "visible";
+  document.querySelector("#color_selector").style.display = "flex";
 };
 
 const triggerColorPalette = (e) => {
@@ -68,8 +81,8 @@ const triggerColorPalette = (e) => {
   showColorPalette();
   state.selectedNote = e.target.dataset.id;
   const el = document.querySelector("#color_selector");
-  const data = e.target.parentElement.parentElement.getBoundingClientRect()
-  el.style.left= `${data.x}px`;
+  const data = e.target.parentElement.parentElement.getBoundingClientRect();
+  el.style.left = `${data.x}px`;
   el.style.top = `${data.y - 60}px`;
 };
 
@@ -88,7 +101,6 @@ const changeNoteColor = (id, color) => {
   saveNotes(notes);
   changeRenderedNoteColor(`#note-${id}`, color);
 };
-
 const addListener = (elements, event, handler) =>
   elements.forEach((element) => element.addEventListener(event, handler));
 
